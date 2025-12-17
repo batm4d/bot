@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Santa Market - Web App</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://telegram.org/js/telegram-web-app.js?59"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🛍 Santa Market</h1>
+            <div class="user-info" id="userInfo">
+                Загрузка...
+            </div>
+        </header>
+
+        <nav class="nav">
+            <button onclick="showCategory('main')">🏠 Главная</button>
+            <button onclick="showCategory('products')">🛍 Товары</button>
+            <button onclick="showCategory('cart')">🛒 Корзина</button>
+            <button onclick="showCategory('profile')">👤 Профиль</button>
+        </nav>
+
+        <main class="main-content">
+            <div id="mainPage" class="page active">
+                <h2>Добро пожаловать!</h2>
+                <p>Выберите раздел в меню навигации.</p>
+
+                <div class="stats">
+                    <div class="stat-item">
+                        <span>🏪</span>
+                        <p>Более 2 лет работы</p>
+                    </div>
+                    <div class="stat-item">
+                        <span>⭐️</span>
+                        <p>600+ отзывов</p>
+                    </div>
+                    <div class="stat-item">
+                        <span>🔒</span>
+                        <p>Анонимные покупки</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="productsPage" class="page">
+                <h2>Категории товаров</h2>
+                <div class="categories">
+                    <div class="category-card" onclick="loadProducts('Питание')">
+                        <span>🍔</span>
+                        <h3>Питание</h3>
+                    </div>
+                    <div class="category-card" onclick="loadProducts('Аптечки')">
+                        <span>🏥</span>
+                        <h3>Аптечки</h3>
+                    </div>
+                    <div class="category-card" onclick="loadProducts('Игрушки')">
+                        <span>🧸</span>
+                        <h3>Игрушки</h3>
+                    </div>
+                </div>
+
+                <div id="productsList" class="products-list"></div>
+            </div>
+
+            <div id="cartPage" class="page">
+                <h2>🛒 Ваша корзина</h2>
+                <div id="cartItems"></div>
+                <div class="cart-total">
+                    <h3>Итого: <span id="totalAmount">0</span>₽</h3>
+                    <button onclick="checkout()" class="btn-checkout">💳 Перейти к оплате</button>
+                </div>
+            </div>
+
+            <div id="profilePage" class="page">
+                <h2>👤 Ваш профиль</h2>
+                <div id="profileInfo"></div>
+                <button onclick="openTelegramBot()" class="btn-telegram">
+                    📱 Открыть в Telegram
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
