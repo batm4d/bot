@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SANTA MARKET - Web App</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+
+        .container { max-width: 480px; margin: 0 auto; background: white; min-height: 100vh; }
+        .header { background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%); color: white; padding: 20px; text-align: center; }
+        .header h1 { font-size: 24px; margin-bottom: 5px; }
+
+        .nav { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 15px; background: #f8f9fa; }
+        .nav-btn { background: white; border: 2px solid #e9ecef; border-radius: 12px; padding: 12px; text-align: center; cursor: pointer; }
+        .nav-btn:hover { background: #667eea; color: white; border-color: #667eea; }
+
+        .content { padding: 20px; }
+        .section { display: none; }
+        .section.active { display: block; }
+
+        .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 20px; }
+        .product-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .product-image { height: 120px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 40px; }
+        .product-info { padding: 15px; }
+        .product-title { font-weight: 600; margin-bottom: 5px; font-size: 16px; }
+        .product-price { color: #FF6B6B; font-weight: bold; font-size: 18px; }
+
+        .btn { background: #667eea; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 10px; }
+        .btn:hover { background: #5a67d8; }
+
+        .payment-container { max-width: 400px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; }
+        .payment-option { padding: 15px; border: 2px solid #e9ecef; border-radius: 8px; margin: 10px 0; cursor: pointer; }
+        .payment-option:hover { border-color: #667eea; }
+        .payment-option.selected { border-color: #4CAF50; background: #f0fff0; }
+    </style>
+</head>
+<body>
+    <div class="container" id="app">
+        <div class="header">
+            <div style="width: 80px; height: 80px; border-radius: 50%; background: white; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 40px; color: #FF6B6B;">🎅</div>
+            <h1>SANTA MARKET</h1>
+            <p>Анонимные покупки • 2 года на рынке • 600+ отзывов</p>
+        </div>
+
+        <div class="nav">
+            <div class="nav-btn" onclick="showSection('menu')">🛍 Меню</div>
+            <div class="nav-btn" onclick="showSection('cart')">🛒 Корзина</div>
+            <div class="nav-btn" onclick="showSection('profile')">👤 Профиль</div>
+            <div class="nav-btn" onclick="showSection('reviews')">⭐️ Отзывы</div>
+            <div class="nav-btn" onclick="showSection('referral')">🗣 Реф.программа</div>
+            <div class="nav-btn" onclick="showSection('info')">📄 Информация</div>
+        </div>
+
+        <div class="content">
+            <!-- Меню -->
+            <div id="menu" class="section active">
+                <h2>Категории товаров</h2>
+                <div class="product-grid">
+                    <div class="product-card" onclick="loadCategory('toys')">
+                        <div class="product-image">🧸</div>
+                        <div class="product-info">
+                            <div class="product-title">Игрушки</div>
+                            <div class="product-price">от 800₽</div>
+                        </div>
+                    </div>
+                    <div class="product-card" onclick="loadCategory('firstaid')">
+                        <div class="product-image">🩹</div>
+                        <div class="product-info">
+                            <div class="product-title">Аптечки</div>
+                            <div class="product-price">от 1800₽</div>
+                        </div>
+                    </div>
+                    <div class="product-card" onclick="loadCategory('food')">
+                        <div class="product-image">🍫</div>
+                        <div class="product-info">
+                            <div class="product-title">Питание</div>
+                            <div class="product-price">от 300₽</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Корзина -->
+            <div id="cart" class="section">
+                <h2>Ваша корзина</h2>
+                <div id="cart-items">
+                    <p>Корзина пуста</p>
+                </div>
+                <div id="cart-total" style="font-size: 24px; font-weight: bold; color: #FF6B6B; margin: 20px 0; text-align: center;">0 ₽</div>
+                <button class="btn" onclick="showSection('payment')">💳 Перейти к оплате</button>
+            </div>
+
+            <!-- Оплата -->
+            <div id="payment" class="section">
+                <h2>Выберите способ оплаты</h2>
+                <div class="payment-container">
+                    <div class="payment-option" onclick="selectPayment('cryptobot')">
+                        <h3>🔄 CryptoBot (USDT)</h3>
+                        <p>Оплата через Telegram бота CryptoBot</p>
+                    </div>
+
+                    <div class="payment-option" onclick="selectPayment('btc')">
+                        <h3>🌐 Bitcoin (BTC)</h3>
+                        <p>Оплата Bitcoin на указанный адрес</p>
+                    </div>
+
+                    <div class="payment-option" onclick="selectPayment('usdt')">
+                        <h3>🌐 USDT (TRC20)</h3>
+                        <p>Оплата USDT в сети TRC20</p>
+                    </div>
+
+                    <div id="payment-details" style="display: none; margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                        <h3>Детали оплаты</h3>
+                        <p id="payment-address"></p>
+                        <p id="payment-amount"></p>
+                        <button class="btn" onclick="confirmPayment()">✅ Я оплатил</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Профиль -->
+            <div id="profile" class="section">
+                <h2>Ваш профиль</h2>
+                <div id="profile-data">
+                    <p>Загружаем данные профиля...</p>
+                </div>
+            </div>
+
+            <!-- Отзывы -->
+            <div id="reviews" class="section">
+                <h2>Отзывы</h2>
+                <p>Читайте реальные отзывы наших покупателей</p>
+                <button class="btn" onclick="window.open('https://t.me/santamarket_reviews', '_blank')">
+                    📲 Перейти к отзывам
+                </button>
+            </div>
+
+            <!-- Реферальная программа -->
+            <div id="referral" class="section">
+                <h2>Реферальная программа</h2>
+                <p>Приглашайте друзей и получайте скидки!</p>
+                <div id="referral-link" style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                    <p>Ваша ссылка:</p>
+                    <input type="text" id="ref-link" readonly style="width: 100%; padding: 8px; margin: 10px 0;">
+                    <button class="btn" onclick="copyReferralLink()">📋 Копировать</button>
+                </div>
+            </div>
+
+            <!-- Информация -->
+            <div id="info" class="section">
+                <h2>О проекте</h2>
+                <p>SANTA MARKET - надежный маркетплейс с 2-х летней историей.</p>
+                <ul style="margin: 15px 0; padding-left: 20px;">
+                    <li>✅ Более 600 довольных клиентов</li>
+                    <li>✅ Анонимные покупки</li>
+                    <li>✅ Быстрая доставка</li>
+                    <li>✅ Качественные товары</li>
+                    <li>✅ Круглосуточная поддержка</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://telegram.org/js/telegram-web-app.js?59"></script>
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        let cart = [];
+        let selectedPayment = '';
+        let totalAmount = 0;
+
+        // Показываем секцию
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+        }
+
+        // Загружаем категорию
+        function loadCategory(category) {
+            // Здесь будет загрузка товаров из категории
+            alert(`Загрузка категории: ${category}`);
+        }
+
+        // Выбираем способ оплаты
+        function selectPayment(method) {
+            selectedPayment = method;
+            document.querySelectorAll('.payment-option').forEach(el => el.classList.remove('selected'));
+            event.currentTarget.classList.add('selected');
+
+            const details = document.getElementById('payment-details');
+            const address = document.getElementById('payment-address');
+            const amount = document.getElementById('payment-amount');
+
+            // Генерируем данные для оплаты
+            const addresses = {
+                'cryptobot': 'Для оплаты через CryptoBot будет создан счет',
+                'btc': 'Адрес BTC: bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
+                'usdt': 'Адрес USDT: TPyTGyLsD8A6rGqBQnLwAEV7Jh9Rk2hFzK'
+            };
+
+            address.textContent = addresses[method];
+            amount.textContent = `Сумма к оплате: ${totalAmount}₽`;
+            details.style.display = 'block';
+        }
+
+        // Подтверждение оплаты
+        function confirmPayment() {
+            tg.showAlert('Спасибо за оплату! Отправьте чек в основном боте.', () => {
+                showSection('menu');
+            });
+        }
+
+        // Копирование реферальной ссылки
+        function copyReferralLink() {
+            const link = `https://t.me/santamarket_bot?start=ref${tg.initDataUnsafe.user?.id || '123'}`;
+            navigator.clipboard.writeText(link);
+            tg.showAlert('Ссылка скопирована!');
+        }
+
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', () => {
+            // Обновляем реферальную ссылку
+            const refLink = document.getElementById('ref-link');
+            refLink.value = `https://t.me/santamarket_bot?start=ref${tg.initDataUnsafe.user?.id || '123'}`;
+
+            // Показываем меню по умолчанию
+            showSection('menu');
+        });
+
+        // Отправка данных в бота
+        function sendDataToBot(data) {
+            tg.sendData(JSON.stringify(data));
+        }
+    </script>
+</body>
+</html>
