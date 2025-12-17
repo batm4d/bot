@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping App</title>
+    <script src="https://telegram.org/js/telegram-web-app.js?59"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            transition: transform 0.3s;
+        }
+
+        .button:hover {
+            transform: scale(1.02);
+        }
+
+        .button.secondary {
+            background: #6c757d;
+        }
+
+        .user-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .product-item {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .product-name {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .product-price {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .quantity-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #667eea;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .cart-total {
+            background: #28a745;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .tab-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: #f8f9fa;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            flex: 1;
+            text-align: center;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛍 Santa Market</h1>
+
+        <div class="user-info" id="userInfo">
+            Загрузка данных пользователя...
+        </div>
+
+        <div class="tab-container">
+            <button class="tab active" onclick="switchTab('products')">Товары</button>
+            <button class="tab" onclick="switchTab('cart')">Корзина</button>
+            <button class="tab" onclick="switchTab('profile')">Профиль</button>
+        </div>
+
+        <div id="productsTab" class="tab-content active">
+            <div id="categories">
+                <button class="button" onclick="loadCategory('Питание')">🍔 Питание</button>
+                <button class="button" onclick="loadCategory('Аптечки')">🏥 Аптечки</button>
+                <button class="button" onclick="loadCategory('Игрушки')">🧸 Игрушки</button>
+            </div>
+
+            <div id="productsList"></div>
+        </div>
+
+        <div id="cartTab" class="tab-content">
+            <h3>🛒 Ваша корзина</h3>
+            <div id="cartItems"></div>
+            <div class="cart-total">
+                Итого: <span id="totalAmount">0</span>₽
+            </div>
+            <button class="button" onclick="checkout()">💳 Перейти к оплате</button>
+        </div>
+
+        <div id="profileTab" class="tab-content">
+            <h3>👤 Ваш профиль</h3>
+            <div id="profileDetails"></div>
+            <button class="button" onclick="openInTelegram()">📱 Открыть в Telegram</button>
+        </div>
+    </div>
+
+    <script>
+        let tg = window.Telegram.WebApp;
+        let cart = {};
+
+        // Инициализация
+        tg.expand();
+        tg.MainButton.hide();
+
+        // Загрузка данных пользователя
+        async function loadUserData() {
+            const userInfo = document.getElementById('userInfo');
+            const profileDetails = document.getElementById('profileDetails');
+
+            try {
+                // Получаем данные из начальных данных Telegram Web App
+                const user = tg.initDataUnsafe.user;
+
+                if (user) {
+                    userInfo.innerHTML = `
+                        <p><strong>👤 Имя:</strong> ${user.first_name} ${user.last_name || ''}</p>
+                        <p><strong>📱 Username:</strong> @${user.username || 'нет'}</p>
+                    `;
+
+                    profileDetails.innerHTML = `
+                        <p><strong>ID пользователя:</strong> ${user.id}</p>
+                        <p><strong>Язык:</strong> ${user.language_code || 'ru'}</p>
+                        <p>Для полного доступа к функциям откройте приложение в боте</p>
+                    `;
+                } else {
+                    userInfo.innerHTML = '<p>Для доступа войдите через Telegram бота</p>';
+                    profileDetails.innerHTML = '<p>Для доступа войдите через Telegram бота</p>';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                userInfo.innerHTML = '<p>Ошибка загрузки данных</p>';
+            }
+        }
+
+        // Переключение вкладок
+        function switchTab(tabName) {
+            // Скрываем все вкладки
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Показываем выбранную вкладку
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            document.querySelector(`[onclick="switchTab('${tabName}')"]`).classList.add('active');
+        }
+
+        // Загрузка категории товаров
+        async function loadCategory(category) {
+            const productsList = document.getElementById('productsList');
+            productsList.innerHTML = '<p>Загрузка товаров...</p>';
+
+            // Примерные товары (в реальном приложении нужно получать с сервера)
+            const products = {
+                'Питание': [
+                    {id: 1, name: 'Энергетические батончики', price: 500},
+                    {id: 2, name: 'Сухпаек туриста', price: 2000},
+                    {id: 3, name: 'Тушенка говяжья', price: 1500}
+                ],
+                'Аптечки': [
+                    {id: 4, name: 'Аптечка первой помощи', price: 5000},
+                    {id: 5, name: 'Аптечка автомобильная', price: 3500}
+                ],
+                'Игрушки': [
+                    {id: 6, name: 'Плюшевый медведь', price: 1500},
+                    {id: 7, name: 'Большой медведь', price: 3000},
+                    {id: 8, name: 'Конструктор', price: 2000}
+                ]
+            };
+
+            const categoryProducts = products[category] || [];
+
+            if (categoryProducts.length > 0) {
+                productsList.innerHTML = '';
+                categoryProducts.forEach(product => {
+                    const productDiv = document.createElement('div');
+                    productDiv.className = 'product-item';
+
+                    const inCart = cart[product.id] || 0;
+
+                    productDiv.innerHTML = `
+                        <div>
+                            <div class="product-name">${product.name}</div>
+                            <div class="product-price">${product.price}₽</div>
+                        </div>
+                        <div class="quantity-control">
+                            <button class="quantity-btn" onclick="updateCart(${product.id}, -1, '${product.name}', ${product.price})">-</button>
+                            <span>${inCart}</span>
+                            <button class="quantity-btn" onclick="updateCart(${product.id}, 1, '${product.name}', ${product.price})">+</button>
+                        </div>
+                    `;
+
+                    productsList.appendChild(productDiv);
+                });
+            } else {
+                productsList.innerHTML = '<p>Товары не найдены</p>';
+            }
+        }
+
+        // Обновление корзины
+        function updateCart(productId, change, productName, price) {
+            if (!cart[productId]) {
+                cart[productId] = {
+                    quantity: 0,
+                    name: productName,
+                    price: price
+                };
+            }
+
+            cart[productId].quantity += change;
+
+            if (cart[productId].quantity <= 0) {
+                delete cart[productId];
+            }
+
+            // Сохраняем в локальное хранилище
+            localStorage.setItem('cart', JSON.stringify(cart));
+
+            // Обновляем отображение
+            loadCategory('Питание'); // Перезагружаем текущую категорию
+            updateCartDisplay();
+        }
+
+        // Обновление отображения корзины
+        function updateCartDisplay() {
+            const cartItems = document.getElementById('cartItems');
+            const totalAmount = document.getElementById('totalAmount');
+
+            if (Object.keys(cart).length === 0) {
+                cartItems.innerHTML = '<p>Корзина пуста</p>';
+                totalAmount.textContent = '0';
+                return;
+            }
+
+            let total = 0;
+            cartItems.innerHTML = '';
+
+            Object.keys(cart).forEach(productId => {
+                const item = cart[productId];
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'product-item';
+                itemDiv.innerHTML = `
+                    <div>
+                        <div class="product-name">${item.name}</div>
+                        <div>${item.price}₽ × ${item.quantity}</div>
+                    </div>
+                    <div class="product-price">${itemTotal}₽</div>
+                `;
+
+                cartItems.appendChild(itemDiv);
+            });
+
+            totalAmount.textContent = total;
+        }
+
+        // Оформление заказа
+        function checkout() {
+            if (Object.keys(cart).length === 0) {
+                tg.showAlert('Корзина пуста');
+                return;
+            }
+
+            const total = Object.keys(cart).reduce((sum, productId) => {
+                return sum + cart[productId].price * cart[productId].quantity;
+            }, 0);
+
+            tg.showAlert(`Товаров на сумму: ${total}₽\nДля оформления заказа перейдите в бота`);
+            tg.openTelegramLink('https://t.me/ваш_бот');
+        }
+
+        // Открыть в Telegram
+        function openInTelegram() {
+            tg.openTelegramLink('https://t.me/ваш_бот');
+        }
+
+        // Загрузка корзины из локального хранилища
+        function loadCartFromStorage() {
+            const savedCart = localStorage.getItem('cart');
+            if (savedCart) {
+                cart = JSON.parse(savedCart);
+            }
+        }
+
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUserData();
+            loadCartFromStorage();
+            updateCartDisplay();
+        });
+    </script>
+</body>
+</html>
