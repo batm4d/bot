@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Santa Market - Web App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 20px 20px 0 0;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .main-nav {
+            background: white;
+            border-radius: 0 0 20px 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .nav-button {
+            display: flex;
+            align-items: center;
+            padding: 18px;
+            background: #f8f9fa;
+            border: none;
+            border-radius: 15px;
+            width: 100%;
+            margin-bottom: 15px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .nav-button:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .nav-button i {
+            margin-right: 15px;
+            font-size: 20px;
+        }
+
+        .nav-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .nav-row .nav-button {
+            flex: 1;
+            margin-bottom: 0;
+            justify-content: center;
+        }
+
+        .content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .content.active {
+            display: block;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .product-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .product-image {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+
+        .product-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .product-price {
+            color: #667eea;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 20px;
+            background: #f8f9fa;
+            border: none;
+            border-radius: 10px;
+            color: #333;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .total {
+            text-align: right;
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+        }
+
+        .payment-methods {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .payment-method {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .payment-method:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 20px 15px;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .product-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🎅</div>
+            <h1>SANTA MARKET</h1>
+            <div class="subtitle">Анонимные покупки с доставкой</div>
+        </div>
+
+        <div class="main-nav">
+            <div class="nav-row">
+                <button class="nav-button" onclick="showSection('menu')">
+                    <span>🛍</span> Меню
+                </button>
+                <button class="nav-button" onclick="showSection('profile')">
+                    <span>👤</span> Профиль
+                </button>
+                <button class="nav-button" onclick="showSection('cart')">
+                    <span>🛒</span> Корзина
+                </button>
+            </div>
+
+            <div class="nav-row">
+                <button class="nav-button" onclick="showReviews()">
+                    <span>⭐️</span> Отзывы
+                </button>
+                <button class="nav-button" onclick="showReferral()">
+                    <span>🤝</span> Реферальная
+                </button>
+            </div>
+
+            <button class="nav-button" onclick="showInfo()">
+                <span>📄</span> Информация
+            </button>
+        </div>
+
+        <!-- Меню -->
+        <div id="menu" class="content">
+            <button class="back-button" onclick="showMain()">← Назад</button>
+            <h2>🛍 Выберите категорию</h2>
+            <div class="product-grid" id="categories-list">
+                <!-- Категории загружаются динамически -->
+            </div>
+        </div>
+
+        <!-- Профиль -->
+        <div id="profile" class="content">
+            <button class="back-button" onclick="showMain()">← Назад</button>
+            <h2>👤 Профиль</h2>
+            <div id="profile-info">
+                <!-- Информация профиля загружается динамически -->
+            </div>
+        </div>
+
+        <!-- Корзина -->
+        <div id="cart" class="content">
+            <button class="back-button" onclick="showMain()">← Назад</button>
+            <h2>🛒 Ваша корзина</h2>
+            <div id="cart-items">
+                <!-- Товары в корзине -->
+            </div>
+            <div class="total" id="cart-total">Итого: 0₽</div>
+            <button class="nav-button" style="width: 100%;" onclick="checkout()">💳 Перейти к оплате</button>
+        </div>
+
+        <!-- Оплата -->
+        <div id="payment" class="content">
+            <button class="back-button" onclick="showSection('cart')">← Назад</button>
+            <h2>💳 Выберите способ оплаты</h2>
+            <div class="payment-methods">
+                <div class="payment-method" onclick="selectPayment('cryptobot')">
+                    🔄 CryptoBot
+                </div>
+                <div class="payment-method" onclick="selectPayment('btc')">
+                    🌐 BTC
+                </div>
+                <div class="payment-method" onclick="selectPayment('usdt')">
+                    🌐 USDT
+                </div>
+                <div class="payment-method" onclick="selectPayment('trx')">
+                    🌐 TRX
+                </div>
+                <div class="payment-method" onclick="selectPayment('xlm')">
+                    🌐 XLM
+                </div>
+                <div class="payment-method" onclick="selectPayment('sol')">
+                    🌐 SOL
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://telegram.org/js/telegram-web-app.js?59"></script>
+    <script>
+        // Инициализация Telegram Web App
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.MainButton.hide();
+
+        // Текущее состояние
+        let currentSection = 'main';
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+        // Показ главного экрана
+        function showMain() {
+            hideAllSections();
+            currentSection = 'main';
+            updateCartCount();
+        }
+
+        // Показать раздел
+        function showSection(sectionId) {
+            hideAllSections();
+            currentSection = sectionId;
+
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.classList.add('active');
+                loadSectionContent(sectionId);
+            }
+        }
+
+        // Скрыть все разделы
+        function hideAllSections() {
+            document.querySelectorAll('.content').forEach(section => {
+                section.classList.remove('active');
+            });
+        }
+
+        // Загрузка контента для раздела
+        function loadSectionContent(sectionId) {
+            switch(sectionId) {
+                case 'menu':
+                    loadCategories();
+                    break;
+                case 'profile':
+                    loadProfile();
+                    break;
+                case 'cart':
+                    loadCart();
+                    break;
+            }
+        }
+
+        // Загрузка категорий товаров
+        function loadCategories() {
+            const categoriesList = document.getElementById('categories-list');
+            categoriesList.innerHTML = `
+                <div class="product-card" onclick="loadProducts('food')">
+                    <div class="product-image">🍔</div>
+                    <div class="product-name">Питание</div>
+                </div>
+                <div class="product-card" onclick="loadProducts('medkit')">
+                    <div class="product-image">🩹</div>
+                    <div class="product-name">Аптечки</div>
+                </div>
+                <div class="product-card" onclick="loadProducts('toys')">
+                    <div class="product-image">🧸</div>
+                    <div class="product-name">Игрушки</div>
+                </div>
+            `;
+        }
+
+        // Загрузка продуктов по категории
+        function loadProducts(category) {
+            const categoriesList = document.getElementById('categories-list');
+            let products = [];
+
+            if (category === 'food') {
+                products = [
+                    { name: 'Энергетические батончики', price: 150, emoji: '🍫' },
+                    { name: 'Сухпаек туриста', price: 1200, emoji: '🎒' },
+                    { name: 'Тушенка говяжья', price: 500, emoji: '🥫' }
+                ];
+            } else if (category === 'medkit') {
+                products = [
+                    { name: 'Аптечка первой помощи', price: 1500, emoji: '🩹' },
+                    { name: 'Аптечка автомобильная', price: 2000, emoji: '🚗' },
+                    { name: 'Аптечка туристическая', price: 3000, emoji: '⛺' }
+                ];
+            } else if (category === 'toys') {
+                products = [
+                    { name: 'Плюшевый медведь', price: 800, emoji: '🧸' },
+                    { name: 'Большой медведь', price: 2000, emoji: '🐻' },
+                    { name: 'Конструктор', price: 1500, emoji: '🧩' }
+                ];
+            }
+
+            let productsHTML = '<button class="back-button" onclick="loadCategories()">← Назад</button>';
+            productsHTML += '<h2>Выберите товар</h2>';
+            productsHTML += '<div class="product-grid">';
+
+            products.forEach(product => {
+                productsHTML += `
+                    <div class="product-card" onclick="addToCart('${product.name}', ${product.price})">
+                        <div class="product-image">${product.emoji}</div>
+                        <div class="product-name">${product.name}</div>
+                        <div class="product-price">${product.price}₽</div>
+                    </div>
+                `;
+            });
+
+            productsHTML += '</div>';
+            categoriesList.innerHTML = productsHTML;
+        }
+
+        // Добавление в корзину
+        function addToCart(name, price) {
+            const existingItem = cart.find(item => item.name === name);
+
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({
+                    name: name,
+                    price: price,
+                    quantity: 1
+                });
+            }
+
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
+
+            // Показываем уведомление
+            tg.showPopup({
+                title: 'Успешно!',
+                message: `Товар "${name}" добавлен в корзину`,
+                buttons: [{ type: 'ok' }]
+            });
+        }
+
+        // Загрузка корзины
+        function loadCart() {
+            const cartItems = document.getElementById('cart-items');
+            const cartTotal = document.getElementById('cart-total');
+
+            if (cart.length === 0) {
+                cartItems.innerHTML = '<div class="loading">Корзина пуста</div>';
+                cartTotal.textContent = 'Итого: 0₽';
+                return;
+            }
+
+            let itemsHTML = '';
+            let total = 0;
+
+            cart.forEach((item, index) => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+
+                itemsHTML += `
+                    <div class="cart-item">
+                        <div>
+                            <strong>${item.name}</strong><br>
+                            <small>${item.price}₽ × ${item.quantity} шт.</small>
+                        </div>
+                        <div>
+                            <strong>${itemTotal}₽</strong><br>
+                            <button onclick="removeFromCart(${index})" style="background:none;border:none;color:#ff6b6b;cursor:pointer;">
+                                ❌
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            cartItems.innerHTML = itemsHTML;
+            cartTotal.textContent = `Итого: ${total}₽`;
+        }
+
+        // Удаление из корзины
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            loadCart();
+            updateCartCount();
+        }
+
+        // Оформление заказа
+        function checkout() {
+            if (cart.length === 0) {
+                tg.showPopup({
+                    title: 'Ошибка',
+                    message: 'Корзина пуста',
+                    buttons: [{ type: 'ok' }]
+                });
+                return;
+            }
+
+            showSection('payment');
+        }
+
+        // Выбор способа оплаты
+        function selectPayment(method) {
+            let message = '';
+            let total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+            if (method === 'cryptobot') {
+                message = `Оплата через CryptoBot\nСумма: ${total}₽\n\nНажмите OK для перехода к оплате`;
+            } else {
+                const methods = {
+                    btc: 'BTC',
+                    usdt: 'USDT',
+                    trx: 'TRX',
+                    xlm: 'XLM',
+                    sol: 'SOL'
+                };
+                message = `Оплата через ${methods[method]}\nСумма: ${total}₽\n\nСледуйте инструкциям в основном боте`;
+            }
+
+            tg.showPopup({
+                title: 'Оплата',
+                message: message,
+                buttons: [
+                    {
+                        type: 'ok',
+                        id: 'pay',
+                        text: 'Оплатить'
+                    },
+                    {
+                        type: 'cancel'
+                    }
+                ]
+            }, (btnId) => {
+                if (btnId === 'pay') {
+                    if (method === 'cryptobot') {
+                        // Открываем CryptoBot
+                        tg.openInvoice('your_invoice_link_here');
+                    }
+                }
+            });
+        }
+
+        // Загрузка профиля
+        function loadProfile() {
+            const profileInfo = document.getElementById('profile-info');
+
+            // Здесь должен быть запрос к боту для получения данных профиля
+            profileInfo.innerHTML = `
+                <div style="text-align: center; padding: 20px;">
+                    <div style="font-size: 48px; margin-bottom: 20px;">👤</div>
+                    <h3>Профиль</h3>
+                    <p>Для полного доступа к профилю используйте основного бота</p>
+                    <button class="nav-button" style="margin-top: 20px;" onclick="tg.openTelegramLink('https://t.me/your_bot_username')">
+                        Открыть в боте
+                    </button>
+                </div>
+            `;
+        }
+
+        // Показать отзывы
+        function showReviews() {
+            tg.openTelegramLink('https://t.me/your_reviews_channel');
+        }
+
+        // Показать реферальную программу
+        function showReferral() {
+            tg.showPopup({
+                title: 'Реферальная программа',
+                message: 'Приглашайте друзей и получайте бонусы!\n\nВаша ссылка: https://t.me/your_bot?start=ref',
+                buttons: [{ type: 'ok' }]
+            });
+        }
+
+        // Показать информацию
+        function showInfo() {
+            tg.showPopup({
+                title: 'О проекте',
+                message: 'Santa Market - анонимный магазин с доставкой по всей России. Работаем более 2 лет, 600+ отзывов.',
+                buttons: [{ type: 'ok' }]
+            });
+        }
+
+        // Обновление счетчика корзины
+        function updateCartCount() {
+            const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+            if (count > 0) {
+                tg.MainButton.setText(`🛒 Корзина (${count})`);
+                tg.MainButton.show();
+                tg.MainButton.onClick(() => showSection('cart'));
+            } else {
+                tg.MainButton.hide();
+            }
+        }
+
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCartCount();
+        });
+    </script>
+</body>
+</html>
