@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SANTA MARKET - Web App</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #667eea;
+            --primary-dark: #5a67d8;
+            --secondary: #764ba2;
+            --success: #48bb78;
+            --danger: #f56565;
+            --light: #f7fafc;
+            --dark: #2d3748;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+
+        .app-container { max-width: 480px; margin: 0 auto; background: white; min-height: 100vh; }
+        .app-header { background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); color: white; padding: 20px; text-align: center; }
+        .app-header h1 { font-size: 24px; margin-bottom: 5px; }
+
+        .app-nav { display: flex; background: var(--light); padding: 10px; gap: 5px; }
+        .nav-btn { flex: 1; padding: 12px; border: none; background: white; border-radius: 10px; cursor: pointer; color: var(--dark); }
+        .nav-btn.active { background: var(--primary); color: white; }
+
+        .app-content { padding: 20px; min-height: calc(100vh - 160px); }
+        .section { display: none; }
+        .section.active { display: block; }
+
+        .btn { padding: 12px 20px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; }
+        .btn-primary { background: var(--primary); color: white; width: 100%; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+
+        .form-group { margin-bottom: 15px; }
+        .form-group input { width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; }
+
+        .product-card { border: 1px solid #e2e8f0; border-radius: 10px; padding: 15px; margin-bottom: 15px; }
+        .product-card img { width: 100%; height: 200px; object-fit: cover; border-radius: 8px; }
+
+        .notification { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--success); color: white; padding: 15px 25px; border-radius: 10px; display: none; }
+        .notification.active { display: block; }
+    </style>
+</head>
+<body>
+    <div class="app-container" id="app">
+        <div class="app-header">
+            <div style="width: 60px; height: 60px; background: white; border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 30px; color: #667eea;">🎅</div>
+            <h1>SANTA MARKET</h1>
+            <p>Анонимные покупки • 2 года на рынке</p>
+        </div>
+
+        <nav class="app-nav">
+            <button class="nav-btn active" onclick="showSection('home')">🏠 Главная</button>
+            <button class="nav-btn" onclick="showSection('menu')">🛍 Меню</button>
+            <button class="nav-btn" onclick="showSection('cart')">🛒 Корзина</button>
+            <button class="nav-btn" onclick="showSection('profile')">👤 Профиль</button>
+        </nav>
+
+        <main class="app-content">
+            <!-- Авторизация -->
+            <section id="auth" class="section active">
+                <h2>Вход в систему</h2>
+                <div class="auth-tabs">
+                    <button class="btn" onclick="showAuthTab('login')">Вход</button>
+                    <button class="btn" onclick="showAuthTab('register')">Регистрация</button>
+                </div>
+
+                <div id="loginForm">
+                    <div class="form-group">
+                        <input type="text" id="loginUsername" placeholder="Логин">
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="loginPassword" placeholder="Пароль">
+                    </div>
+                    <button class="btn btn-primary" onclick="login()">Войти</button>
+                </div>
+
+                <div id="registerForm" style="display: none;">
+                    <div class="form-group">
+                        <input type="text" id="regUsername" placeholder="Логин">
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="regPassword" placeholder="Пароль">
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="regConfirmPassword" placeholder="Повторите пароль">
+                    </div>
+                    <button class="btn btn-primary" onclick="register()">Зарегистрироваться</button>
+                </div>
+            </section>
+
+            <!-- Главная -->
+            <section id="home" class="section">
+                <h2>Добро пожаловать!</h2>
+                <p>Выберите раздел в меню выше</p>
+            </section>
+
+            <!-- Меню -->
+            <section id="menu" class="section">
+                <h2>Категории товаров</h2>
+                <div id="categoriesList">
+                    <!-- Категории загружаются динамически -->
+                </div>
+                <div id="productsList">
+                    <!-- Товары загружаются динамически -->
+                </div>
+            </section>
+
+            <!-- Корзина -->
+            <section id="cart" class="section">
+                <h2>Ваша корзина</h2>
+                <div id="cartItems">
+                    <!-- Товары в корзине -->
+                </div>
+                <div id="cartTotal" style="font-size: 24px; font-weight: bold; margin: 20px 0;">0 ₽</div>
+                <button class="btn btn-primary" onclick="showSection('checkout')">💳 Перейти к оплате</button>
+            </section>
+
+            <!-- Оплата -->
+            <section id="checkout" class="section">
+                <h2>Оплата</h2>
+                <div id="paymentMethods">
+                    <button class="btn" onclick="selectPayment('cryptobot')">🔄 CryptoBot</button>
+                    <button class="btn" onclick="selectPayment('btc')">₿ Bitcoin</button>
+                    <button class="btn" onclick="selectPayment('usdt')">💎 USDT</button>
+                </div>
+                <div id="paymentDetails" style="display: none;">
+                    <h3>Детали оплаты</h3>
+                    <p id="paymentInfo"></p>
+                    <button class="btn btn-success" onclick="confirmPayment()">✅ Я оплатил</button>
+                </div>
+            </section>
+
+            <!-- Профиль -->
+            <section id="profile" class="section">
+                <h2>Ваш профиль</h2>
+                <div id="profileData">
+                    <!-- Данные профиля -->
+                </div>
+                <button class="btn" onclick="showSection('settings')">⚙️ Настройки</button>
+            </section>
+
+            <!-- Настройки -->
+            <section id="settings" class="section">
+                <h2>Настройки профиля</h2>
+                <div class="form-group">
+                    <input type="text" id="settingCity" placeholder="Город">
+                </div>
+                <div class="form-group">
+                    <select id="settingDelivery" class="form-select">
+                        <option value="">Способ получения</option>
+                        <option value="post">📮 Почтой</option>
+                        <option value="courier">📥 Курьером</option>
+                        <option value="home">🏠 Доставка до дома</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" onclick="saveSettings()">💾 Сохранить</button>
+            </section>
+        </main>
+
+        <!-- Уведомление -->
+        <div class="notification" id="notification"></div>
+    </div>
+
+    <script src="https://telegram.org/js/telegram-web-app.js?59"></script>
+    <script>
+        // Инициализация Telegram Web App
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.MainButton.hide();
+
+        // Глобальные переменные
+        let currentUser = null;
+        let cart = [];
+        let selectedPayment = null;
+        let currentProduct = null;
+
+        // Показать секцию
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+
+            document.getElementById(sectionId).classList.add('active');
+
+            // Обновляем активную кнопку навигации
+            const navMap = {
+                'home': 0, 'menu': 1, 'cart': 2, 'profile': 3
+            };
+            if (navMap[sectionId] !== undefined) {
+                document.querySelectorAll('.nav-btn')[navMap[sectionId]].classList.add('active');
+            }
+
+            // Загружаем данные для секции
+            switch(sectionId) {
+                case 'menu': loadCategories(); break;
+                case 'cart': loadCart(); break;
+                case 'profile': loadProfile(); break;
+            }
+        }
+
+        // Показать вкладку авторизации
+        function showAuthTab(tab) {
+            document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
+            document.getElementById('registerForm').style.display = tab === 'register' ? 'block' : 'none';
+        }
+
+        // Отправить данные в бота
+        function sendToBot(data) {
+            tg.sendData(JSON.stringify(data));
+        }
+
+        // Слушать ответы от бота
+        tg.onEvent('webAppDataReceived', (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                handleBotResponse(data);
+            } catch (e) {
+                console.error('Ошибка обработки данных от бота:', e);
+            }
+        });
+
+        // Обработка ответов от бота
+        function handleBotResponse(data) {
+            console.log('Ответ от бота:', data);
+
+            switch(data.type) {
+                case 'auth_success':
+                    currentUser = data.user;
+                    localStorage.setItem('user', JSON.stringify(currentUser));
+                    showNotification('Вход успешен!');
+                    showSection('home');
+                    break;
+
+                case 'auth_error':
+                    showNotification(data.error, 'error');
+                    break;
+
+                case 'register_success':
+                    currentUser = data.user;
+                    localStorage.setItem('user', JSON.stringify(currentUser));
+                    showNotification('Регистрация успешна!');
+                    showSection('home');
+                    break;
+
+                case 'register_error':
+                    showNotification(data.error, 'error');
+                    break;
+
+                case 'profile_data':
+                    updateProfileDisplay(data.data);
+                    break;
+
+                case 'profile_updated':
+                    showNotification('Профиль обновлен!');
+                    loadProfile();
+                    break;
+
+                case 'cart_data':
+                    updateCartDisplay(data.data);
+                    break;
+
+                case 'cart_updated':
+                    loadCart();
+                    showNotification('Корзина обновлена!');
+                    break;
+
+                case 'products_data':
+                    displayProducts(data.data);
+                    break;
+
+                case 'order_created':
+                    if (data.success) {
+                        showNotification(`Заказ #${data.order_id} создан! Сумма: ${data.total}₽`);
+                        showSection('home');
+                    } else {
+                        showNotification(data.error, 'error');
+                    }
+                    break;
+            }
+        }
+
+        // Вход в систему
+        function login() {
+            const login = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if (!login || !password) {
+                showNotification('Заполните все поля', 'error');
+                return;
+            }
+
+            sendToBot({
+                type: 'login',
+                data: { login, password }
+            });
+        }
+
+        // Регистрация
+        function register() {
+            const login = document.getElementById('regUsername').value;
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('regConfirmPassword').value;
+
+            if (!login || !password || !confirmPassword) {
+                showNotification('Заполните все поля', 'error');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showNotification('Пароли не совпадают', 'error');
+                return;
+            }
+
+            sendToBot({
+                type: 'register',
+                data: { login, password }
+            });
+        }
+
+        // Загрузить профиль
+        function loadProfile() {
+            if (currentUser) {
+                sendToBot({ type: 'get_profile' });
+            }
+        }
+
+        // Обновить отображение профиля
+        function updateProfileDisplay(profile) {
+            document.getElementById('profileData').innerHTML = `
+                <p><strong>Логин:</strong> ${profile.login || 'Не указан'}</p>
+                <p><strong>Город:</strong> ${profile.city || 'Не указан'}</p>
+                <p><strong>Способ получения:</strong> ${getDeliveryMethodText(profile.delivery_method)}</p>
+            `;
+        }
+
+        // Загрузить категории
+        function loadCategories() {
+            sendToBot({ type: 'get_products' });
+        }
+
+        // Отобразить товары
+        function displayProducts(products) {
+            const categoriesList = document.getElementById('categoriesList');
+            const productsList = document.getElementById('productsList');
+
+            // Группируем товары по категориям
+            const categories = [...new Set(products.map(p => p.category))];
+
+            categoriesList.innerHTML = categories.map(category => `
+                <div class="category-card" onclick="loadCategoryProducts('${category}')">
+                    <h3>${category}</h3>
+                </div>
+            `).join('');
+
+            // Показываем все товары по умолчанию
+            productsList.innerHTML = products.map(product => `
+                <div class="product-card">
+                    <img src="${product.photo_url}" alt="${product.name}">
+                    <h3>${product.name}</h3>
+                    <p>${product.description}</p>
+                    <p><strong>${product.price} ₽</strong></p>
+                    ${product.weight_available ? `
+                        <button class="btn" onclick="selectWeight(${product.id}, '${product.name}', ${product.price})">
+                            Выбрать вес
+                        </button>
+                    ` : `
+                        <button class="btn btn-primary" onclick="addToCart(${product.id}, '${product.name}', ${product.price})">
+                            В корзину
+                        </button>
+                    `}
+                </div>
+            `).join('');
+        }
+
+        // Выбрать вес
+        function selectWeight(productId, productName, price) {
+            const weight = prompt('Введите вес в кг (например: 0.5, 1, 2):');
+            if (weight && !isNaN(weight)) {
+                const totalPrice = price * parseFloat(weight);
+                addToCart(productId, `${productName} (${weight} кг)`, totalPrice, weight);
+            }
+        }
+
+        // Добавить в корзину
+        function addToCart(productId, productName, price, weight = null) {
+            sendToBot({
+                type: 'add_to_cart',
+                data: {
+                    product_id: productId,
+                    product_name: productName,
+                    price: price,
+                    weight: weight,
+                    quantity: 1
+                }
+            });
+        }
+
+        // Загрузить корзину
+        function loadCart() {
+            sendToBot({ type: 'get_cart' });
+        }
+
+        // Обновить отображение корзины
+        function updateCartDisplay(data) {
+            cart = data.items;
+
+            if (cart.length === 0) {
+                document.getElementById('cartItems').innerHTML = '<p>Корзина пуста</p>';
+            } else {
+                document.getElementById('cartItems').innerHTML = cart.map(item => `
+                    <div class="cart-item">
+                        <p><strong>${item.name}</strong></p>
+                        <p>${item.quantity} шт. • ${item.price} ₽</p>
+                        <button class="btn btn-danger" onclick="removeFromCart(${item.id})">Удалить</button>
+                    </div>
+                `).join('');
+            }
+
+            document.getElementById('cartTotal').textContent = `${data.total} ₽`;
+        }
+
+        // Удалить из корзины
+        function removeFromCart(itemId) {
+            sendToBot({
+                type: 'remove_from_cart',
+                data: { item_id: itemId }
+            });
+        }
+
+        // Выбрать способ оплаты
+        function selectPayment(method) {
+            selectedPayment = method;
+            document.getElementById('paymentDetails').style.display = 'block';
+
+            let paymentInfo = '';
+            switch(method) {
+                case 'cryptobot':
+                    paymentInfo = 'Оплата через CryptoBot (USDT)';
+                    break;
+                case 'btc':
+                    paymentInfo = 'Оплата Bitcoin';
+                    break;
+                case 'usdt':
+                    paymentInfo = 'Оплата USDT (TRC20)';
+                    break;
+            }
+
+            document.getElementById('paymentInfo').textContent = paymentInfo;
+        }
+
+        // Подтвердить оплату
+        function confirmPayment() {
+            if (!selectedPayment) {
+                showNotification('Выберите способ оплаты', 'error');
+                return;
+            }
+
+            sendToBot({
+                type: 'create_order',
+                data: { payment_method: selectedPayment }
+            });
+        }
+
+        // Сохранить настройки
+        function saveSettings() {
+            const city = document.getElementById('settingCity').value;
+            const deliveryMethod = document.getElementById('settingDelivery').value;
+
+            sendToBot({
+                type: 'update_profile',
+                data: { city, delivery_method: deliveryMethod }
+            });
+        }
+
+        // Показать уведомление
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = 'notification';
+            notification.classList.add('active');
+
+            if (type === 'error') {
+                notification.style.background = '#f56565';
+            } else {
+                notification.style.background = '#48bb78';
+            }
+
+            setTimeout(() => {
+                notification.classList.remove('active');
+            }, 3000);
+        }
+
+        // Получить текст способа доставки
+        function getDeliveryMethodText(method) {
+            switch(method) {
+                case 'post': return '📮 Почтой';
+                case 'courier': return '📥 Курьером';
+                case 'home': return '🏠 Доставка до дома';
+                default: return 'Не указан';
+            }
+        }
+
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', () => {
+            // Проверяем, авторизован ли пользователь
+            const savedUser = localStorage.getItem('user');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                showSection('home');
+            } else {
+                showSection('auth');
+            }
+
+            // Загружаем категории
+            loadCategories();
+        });
+    </script>
+</body>
+</html>
