@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Santa Market - Веб-приложение</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Шапка -->
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-gift"></i>
+                <span>Santa Market</span>
+            </div>
+            <div class="user-info" id="userInfo">
+                <i class="fas fa-user"></i>
+                <span id="username">Гость</span>
+            </div>
+        </header>
+
+        <!-- Основной контент -->
+        <main class="main-content">
+            <!-- Экран авторизации -->
+            <div id="authScreen" class="screen active">
+                <div class="auth-container">
+                    <h2><i class="fas fa-lock"></i> Авторизация</h2>
+                    <div class="auth-tabs">
+                        <button class="tab-btn active" onclick="showTab('login')">Вход</button>
+                        <button class="tab-btn" onclick="showTab('register')">Регистрация</button>
+                    </div>
+
+                    <div id="loginTab" class="tab-content active">
+                        <input type="text" id="loginUsername" placeholder="Логин" class="input-field">
+                        <input type="password" id="loginPassword" placeholder="Пароль" class="input-field">
+                        <button onclick="login()" class="btn btn-primary">
+                            <i class="fas fa-sign-in-alt"></i> Войти
+                        </button>
+                    </div>
+
+                    <div id="registerTab" class="tab-content">
+                        <input type="text" id="registerUsername" placeholder="Придумайте логин" class="input-field">
+                        <input type="password" id="registerPassword" placeholder="Придумайте пароль" class="input-field">
+                        <input type="password" id="registerConfirmPassword" placeholder="Подтвердите пароль" class="input-field">
+                        <button onclick="register()" class="btn btn-primary">
+                            <i class="fas fa-user-plus"></i> Зарегистрироваться
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Главное меню -->
+            <div id="mainScreen" class="screen">
+                <div class="welcome-banner">
+                    <h2>Добро пожаловать в Santa Market!</h2>
+                    <p>Магазин работает 2 года и имеет более 600 отзывов</p>
+                </div>
+
+                <div class="menu-grid">
+                    <div class="menu-card" onclick="showCategory('food')">
+                        <i class="fas fa-utensils"></i>
+                        <span>Питание</span>
+                    </div>
+                    <div class="menu-card" onclick="showCategory('first_aid')">
+                        <i class="fas fa-first-aid"></i>
+                        <span>Аптечки</span>
+                    </div>
+                    <div class="menu-card" onclick="showCategory('toys')">
+                        <i class="fas fa-gamepad"></i>
+                        <span>Игрушки</span>
+                    </div>
+                    <div class="menu-card" onclick="showProfile()">
+                        <i class="fas fa-user"></i>
+                        <span>Профиль</span>
+                    </div>
+                    <div class="menu-card" onclick="showCart()">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>Корзина</span>
+                    </div>
+                    <div class="menu-card" onclick="showReviews()">
+                        <i class="fas fa-star"></i>
+                        <span>Отзывы</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Категории товаров -->
+            <div id="categoryScreen" class="screen">
+                <div class="screen-header">
+                    <button class="back-btn" onclick="goBack()">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <h3 id="categoryTitle">Категория</h3>
+                </div>
+                <div id="categoryContent" class="category-content"></div>
+            </div>
+
+            <!-- Товары -->
+            <div id="productsScreen" class="screen">
+                <div class="screen-header">
+                    <button class="back-btn" onclick="goBack()">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <h3 id="productsTitle">Товары</h3>
+                </div>
+                <div id="productsList" class="products-list"></div>
+            </div>
+
+            <!-- Детали товара -->
+            <div id="productScreen" class="screen">
+                <div class="screen-header">
+                    <button class="back-btn" onclick="goBack()">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <h3>Товар</h3>
+                </div>
+                <div id="productDetails" class="product-details"></div>
+            </div>
+
+            <!-- Корзина -->
+            <div id="cartScreen" class="screen">
+                <div class="screen-header">
+                    <button class="back-btn" onclick="goBack()">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <h3>Корзина</h3>
+                </div>
+                <div id="cartItems" class="cart-items"></div>
+                <div id="cartEmpty" class="empty-state">
+                    <i class="fas fa-shopping-cart"></i>
+                    <p>Ваша корзина пуста</p>
+                    <button onclick="showMainScreen()" class="btn btn-secondary">
+                        Перейти к покупкам
+                    </button>
+                </div>
+            </div>
+
+            <!-- Профиль -->
+            <div id="profileScreen" class="screen">
+                <div class="screen-header">
+                    <button class="back-btn" onclick="goBack()">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <h3>Профиль</h3>
+                </div>
+                <div id="profileInfo" class="profile-info"></div>
+                <div class="profile-actions">
+                    <button onclick="showOrders()" class="btn btn-secondary">
+                        <i class="fas fa-box"></i> Мои заказы
+                    </button>
+                    <button onclick="createTicket()" class="btn btn-secondary">
+                        <i class="fas fa-ticket-alt"></i> Создать тикет
+                    </button>
+                    <button onclick="changeCity()" class="btn btn-secondary">
+                        <i class="fas fa-city"></i> Изменить город
+                    </button>
+                    <button onclick="changeDeliveryMethod()" class="btn btn-secondary">
+                        <i class="fas fa-truck"></i> Изменить доставку
+                    </button>
+                    <button onclick="logout()" class="btn btn-danger">
+                        <i class="fas fa-sign-out-alt"></i> Выйти
+                    </button>
+                </div>
+            </div>
+
+            <!-- Заказы -->
+            <div id="ordersScreen" class="screen">
+                <div class="screen-header">
+                    <button class="back-btn" onclick="goBack()">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <h3>Мои заказы</h3>
+                </div>
+                <div id="ordersList" class="orders-list"></div>
+            </div>
+
+            <!-- Оплата -->
+            <div id="paymentScreen" class="screen">
+                <div class="screen-header">
+                    <button class="back-btn" onclick="goBack()">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <h3>Оплата</h3>
+                </div>
+                <div id="paymentInfo" class="payment-info"></div>
+            </div>
+        </main>
+
+        <!-- Нижнее меню -->
+        <nav class="bottom-nav">
+            <button onclick="showMainScreen()" class="nav-btn">
+                <i class="fas fa-home"></i>
+                <span>Главная</span>
+            </button>
+            <button onclick="showCategory('food')" class="nav-btn">
+                <i class="fas fa-store"></i>
+                <span>Магазин</span>
+            </button>
+            <button onclick="showCart()" class="nav-btn">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Корзина</span>
+                <span id="cartCount" class="badge">0</span>
+            </button>
+            <button onclick="showProfile()" class="nav-btn">
+                <i class="fas fa-user"></i>
+                <span>Профиль</span>
+            </button>
+        </nav>
+
+        <!-- Модальные окна -->
+        <div id="modalOverlay" class="modal-overlay"></div>
+
+        <div id="weightModal" class="modal">
+            <div class="modal-content">
+                <h3>Выберите вес</h3>
+                <div class="weight-options"></div>
+                <button onclick="closeModal()" class="btn btn-secondary">Отмена</button>
+            </div>
+        </div>
+
+        <div id="paymentModal" class="modal">
+            <div class="modal-content">
+                <h3>Выберите способ оплаты</h3>
+                <div class="payment-options"></div>
+                <button onclick="closeModal()" class="btn btn-secondary">Отмена</button>
+            </div>
+        </div>
+
+        <div id="ticketModal" class="modal">
+            <div class="modal-content">
+                <h3>Создать тикет</h3>
+                <select id="ticketCategory" class="input-field">
+                    <option value="">Выберите категорию</option>
+                    <option value="Жалобы на площадку">Жалобы на площадку</option>
+                    <option value="Попытки продажи через ЛС">Попытки продажи через ЛС</option>
+                    <option value="Ошибки оплаты">Ошибки оплаты</option>
+                    <option value="Жалоба на модератора">Жалоба на модератора</option>
+                    <option value="Сотрудничество">Сотрудничество</option>
+                    <option value="Жалобы на товар">Жалобы на товар</option>
+                </select>
+                <textarea id="ticketText" placeholder="Опишите вашу проблему" class="input-field" rows="4"></textarea>
+                <button onclick="submitTicket()" class="btn btn-primary">Отправить</button>
+                <button onclick="closeModal()" class="btn btn-secondary">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js?59"></script>
+</body>
+</html>
