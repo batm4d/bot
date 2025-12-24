@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Санта Маркет</title>
+    <meta name="telegram:webapp" content="true">
+    <script src="https://telegram.org/js/telegram-web-app.js?59"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+
+        <!-- Экран авторизации -->
+        <div id="auth-screen" class="screen active">
+            <div class="card">
+                <h2>🔐 Вход в аккаунт</h2>
+                <p>Используйте логин и пароль из Telegram-бота</p>
+                <input type="text" id="login-input" placeholder="Логин" autocomplete="username">
+                <input type="password" id="password-input" placeholder="Пароль" autocomplete="current-password">
+                <button class="btn-primary" onclick="login()">Войти</button>
+            </div>
+        </div>
+
+        <!-- Главное меню -->
+        <div id="main-screen" class="screen">
+            <div class="header">
+                <h1>🛍 Санта Маркет</h1>
+                <p class="city">Город: <span id="city-display">-</span></p>
+            </div>
+            <div class="grid">
+                <button class="btn" onclick="openMenu()">🛍 Меню товаров</button>
+                <button class="btn" onclick="openProfile()">👤 Профиль</button>
+                <button class="btn" onclick="openCart()">🛒 Корзина (<span id="cart-count">0</span>)</button>
+                <button class="btn" onclick="showReviews()">⭐️ Отзывы</button>
+                <button class="btn" onclick="showReferral()">🗣 Реферальная программа</button>
+                <button class="btn" onclick="showInfo()">📄 Информация</button>
+            </div>
+        </div>
+
+        <!-- Экран меню товаров -->
+        <div id="menu-screen" class="screen">
+            <div class="header-back">
+                <button onclick="backToMain()" class="back-btn">🔙 Назад</button>
+                <h2>Выберите категорию</h2>
+            </div>
+            <div id="categories" class="grid"></div>
+        </div>
+
+        <!-- Корзина -->
+        <div id="cart-screen" class="screen">
+            <div class="header-back">
+                <button onclick="backToMain()" class="back-btn">🔙 Назад</button>
+                <h2>🛒 Корзина</h2>
+            </div>
+            <div id="cart-items"></div>
+            <div id="cart-total" class="total"></div>
+            <button class="btn-primary" onclick="proceedToPayment()" id="pay-btn" style="display:none;">Оплатить</button>
+            <p id="empty-cart" class="empty">Ваша корзина пуста</p>
+        </div>
+
+        <!-- Профиль -->
+        <div id="profile-screen" class="screen">
+            <div class="header-back">
+                <button onclick="backToMain()" class="back-btn">🔙 Назад</button>
+                <h2>👤 Профиль</h2>
+            </div>
+            <div class="card">
+                <p><b>Логин:</b> <span id="profile-login"></span></p>
+                <p><b>Город:</b> <span id="profile-city"></span> <button onclick="changeCity()" class="small-btn">Изменить</button></p>
+                <p><b>Способ получения:</b> <span id="profile-method"></span></p>
+                <p><b>Данные доставки:</b> <span id="profile-data"></span></p>
+                <button class="btn" onclick="changeDeliveryMethod()">Изменить способ получения</button>
+            </div>
+        </div>
+
+        <!-- Остальные экраны (отзывы, рефералка, инфо) -->
+        <div id="reviews-screen" class="screen">
+            <div class="header-back">
+                <button onclick="backToMain()" class="back-btn">🔙</button>
+                <h2>⭐️ Отзывы</h2>
+            </div>
+            <img src="https://via.placeholder.com/800x600?text=Отзывы" class="full-image">
+            <a href="https://t.me/your_reviews_channel" class="btn-primary">Перейти к отзывам</a>
+        </div>
+
+        <div id="referral-screen" class="screen">
+            <div class="header-back">
+                <button onclick="backToMain()" class="back-btn">🔙</button>
+                <h2>🗣 Реферальная программа</h2>
+            </div>
+            <img src="https://via.placeholder.com/800x600?text=Рефералка" class="full-image">
+            <p id="ref-link-text"></p>
+            <button class="btn-primary" onclick="copyRefLink()">Скопировать ссылку</button>
+        </div>
+
+        <div id="info-screen" class="screen">
+            <div class="header-back">
+                <button onclick="backToMain()" class="back-btn">🔙</button>
+                <h2>📄 Информация</h2>
+            </div>
+            <img src="https://via.placeholder.com/800x600?text=Информация" class="full-image">
+            <p>Магазин работает 2 года, более 600 отзывов. Анонимность гарантирована.</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
